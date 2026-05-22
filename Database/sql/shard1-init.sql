@@ -47,3 +47,120 @@ CREATE TABLE IF NOT EXISTS `Wallet` (
     PRIMARY KEY (wallet_id, user_id),
     INDEX idx_user_id (user_id)
 ) PARTITION BY HASH(user_id) PARTITIONS 2;
+
+CREATE TABLE IF NOT EXISTS `Cart` (
+
+    cart_id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+
+    created_at DATETIME DEFAULT NOW(),
+
+    updated_at DATETIME DEFAULT NOW()
+        ON UPDATE NOW(),
+
+    PRIMARY KEY (cart_id, user_id),
+
+    INDEX idx_user_id (user_id)
+
+)
+PARTITION BY HASH(user_id)
+PARTITIONS 2;
+
+
+
+CREATE TABLE IF NOT EXISTS `Orders` (
+
+    order_id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+
+    placed_at DATETIME DEFAULT NOW(),
+
+    status ENUM(
+        'pending',
+        'confirmed',
+        'shipped',
+        'delivered',
+        'cancelled'
+    ) DEFAULT 'pending',
+
+    total_amount DECIMAL(10,2) NOT NULL,
+
+    PRIMARY KEY (order_id, user_id),
+
+    INDEX idx_user_id (user_id)
+
+)
+PARTITION BY HASH(user_id)
+PARTITIONS 2;
+
+
+
+CREATE TABLE IF NOT EXISTS `OrderItem` (
+
+    order_item_id INT NOT NULL AUTO_INCREMENT,
+
+    order_id INT NOT NULL,
+
+    listing_id INT NOT NULL,
+
+    quantity INT NOT NULL,
+
+    unit_price DECIMAL(10,2) NOT NULL,
+
+    line_total DECIMAL(10,2) NOT NULL,
+
+    updated_at DATETIME DEFAULT NOW()
+        ON UPDATE NOW(),
+
+    PRIMARY KEY (order_item_id, order_id),
+
+    INDEX idx_order_id (order_id),
+    INDEX idx_listing_id (listing_id)
+
+)
+PARTITION BY HASH(order_id)
+PARTITIONS 2;
+
+
+
+CREATE TABLE IF NOT EXISTS `Transactions` (
+
+    transaction_id INT NOT NULL AUTO_INCREMENT,
+
+    wallet_id INT NOT NULL,
+
+    order_id INT,
+
+    transaction_date DATETIME DEFAULT NOW(),
+
+    status ENUM(
+        'pending',
+        'completed',
+        'failed',
+        'refunded'
+    ) DEFAULT 'pending',
+
+    type ENUM(
+        'purchase',
+        'deposit',
+        'refund',
+        'withdrawal'
+    ),
+
+    amount DECIMAL(10,2) NOT NULL,
+
+    PRIMARY KEY (transaction_id, transaction_date),
+
+    INDEX idx_wallet_id (wallet_id),
+    INDEX idx_order_id (order_id)
+
+)
+
+PARTITION BY RANGE (YEAR(transaction_date)) (
+
+    PARTITION p2025 VALUES LESS THAN (2026),
+
+    PARTITION p2026 VALUES LESS THAN (2027),
+
+    PARTITION p_future VALUES LESS THAN MAXVALUE
+);
