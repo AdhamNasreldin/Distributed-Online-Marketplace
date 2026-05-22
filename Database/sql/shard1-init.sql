@@ -165,7 +165,7 @@ PARTITION BY RANGE (YEAR(transaction_date)) (
     PARTITION p_future VALUES LESS THAN MAXVALUE
 );
 -- =========================================================================
--- PERSON 3 PART — REPLICATED TABLES (Shard 1)
+-- REPLICATED TABLES (Shard 1)
 -- =========================================================================
 
 CREATE TABLE IF NOT EXISTS `Category` (
