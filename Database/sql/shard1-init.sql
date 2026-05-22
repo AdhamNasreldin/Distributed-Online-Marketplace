@@ -233,7 +233,7 @@ CREATE TABLE IF NOT EXISTS `Stock` (
     FOREIGN KEY (listing_id) REFERENCES ProductListing(listing_id),
     FOREIGN KEY (warehouse_id) REFERENCES Warehouse(warehouse_id)
 );-- =========================================================================
--- PERSON 3 PART — REPLICATED TABLES (Shard 1)
+--  PART_3 — REPLICATED TABLES (Shard 1)
 -- =========================================================================
 
 CREATE TABLE IF NOT EXISTS `Category` (
