@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "git add package.json && git commit -m \"Clean up package.json helper scripts\" && git push origin main",
+    "build": "tsc -b && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
