@@ -5,7 +5,7 @@ services:
     container_name: db_coordinator
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: marketplace
+      MYSQL_DATABASE: marketplace_coordinator
       MYSQL_USER: appuser
       MYSQL_PASSWORD: apppass
     ports:
