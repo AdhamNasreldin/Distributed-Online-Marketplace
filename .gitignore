@@ -3,3 +3,6 @@ dist/
 .npm-cache/
 .env
 *.zip
+build-tools/
+.antigravitycli/
+target/

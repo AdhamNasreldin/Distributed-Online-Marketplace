@@ -6,7 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "git-status": "git status",
+    "git-reset": "git reset --mixed origin/main",
+    "git-add": "git add -A",
+    "git-commit": "git commit -m \"Port backend to Java and migrate to sharded MariaDB database service\"",
+    "git-fetch": "git fetch origin main",
+    "git-merge": "git merge origin/main",
+    "git-push": "git push origin main",
+    "git-log": "git log -n 5"
   },
   "dependencies": {
     "lucide-react": "^1.14.0",
