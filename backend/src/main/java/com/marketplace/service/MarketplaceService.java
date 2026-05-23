@@ -250,15 +250,23 @@ public class MarketplaceService {
 
     @Transactional
     public User verifyAuthChallenge(String challengeId, String code) {
-        String updateSql = "UPDATE core.auth_challenges SET consumed_at = now() " +
-                           "WHERE id = ? AND code = ? AND consumed_at IS NULL AND expires_at > now() RETURNING user_id";
+        String selectSql = "SELECT user_id FROM core.auth_challenges " +
+                           "WHERE id = ? AND code = ? AND consumed_at IS NULL AND expires_at > now()";
         
-        List<String> userIds = jdbcTemplate.query(updateSql, (rs, rowNum) -> rs.getString("user_id"), challengeId, code);
+        List<String> userIds = jdbcTemplate.query(selectSql, (rs, rowNum) -> rs.getString("user_id"), challengeId, code);
         if (userIds.isEmpty()) {
             throw new AppException(400, "Verification failed or expired.");
         }
 
         String userId = userIds.get(0);
+
+        String updateSql = "UPDATE core.auth_challenges SET consumed_at = now() " +
+                           "WHERE id = ? AND consumed_at IS NULL";
+        int rowsUpdated = jdbcTemplate.update(updateSql, challengeId);
+        if (rowsUpdated == 0) {
+            throw new AppException(400, "Verification failed or expired.");
+        }
+
         StoredUser user = findUserById(userId);
         if (user == null) {
             throw new AppException(404, "Verified user was not found.");
