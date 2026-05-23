@@ -55,6 +55,12 @@ public class SocketProxyHandlers {
             } else if (methodName.equals("close")) {
                 socketClient.sendRequest(new SocketRequest(sessionId, "CLOSE", null, null));
                 return null;
+            } else if (methodName.equals("createStatement")) {
+                return Proxy.newProxyInstance(
+                    Connection.class.getClassLoader(),
+                    new Class[]{java.sql.Statement.class},
+                    new SocketPreparedStatementHandler(socketClient, sessionId, null)
+                );
             } else if (methodName.equals("prepareStatement")) {
                 String sql = (String) args[0];
                 return Proxy.newProxyInstance(
@@ -111,17 +117,25 @@ public class SocketProxyHandlers {
                 params.set(index, null);
                 return null;
             } else if (methodName.equals("executeQuery")) {
-                SocketResponse response = socketClient.sendRequest(new SocketRequest(sessionId, "QUERY", sql, params));
+                String executionSql = this.sql;
+                if (executionSql == null && args != null && args.length >= 1 && args[0] instanceof String) {
+                    executionSql = (String) args[0];
+                }
+                SocketResponse response = socketClient.sendRequest(new SocketRequest(sessionId, "QUERY", executionSql, params));
                 if (!response.isSuccess()) {
                     throw new SQLException(response.getError());
                 }
                 return Proxy.newProxyInstance(
-                    PreparedStatement.class.getClassLoader(),
+                    java.sql.Statement.class.getClassLoader(),
                     new Class[]{ResultSet.class},
                     new SocketResultSetHandler(response.getRows())
                 );
             } else if (methodName.equals("executeUpdate") || methodName.equals("execute")) {
-                SocketResponse response = socketClient.sendRequest(new SocketRequest(sessionId, "UPDATE", sql, params));
+                String executionSql = this.sql;
+                if (executionSql == null && args != null && args.length >= 1 && args[0] instanceof String) {
+                    executionSql = (String) args[0];
+                }
+                SocketResponse response = socketClient.sendRequest(new SocketRequest(sessionId, "UPDATE", executionSql, params));
                 if (!response.isSuccess()) {
                     throw new SQLException(response.getError());
                 }

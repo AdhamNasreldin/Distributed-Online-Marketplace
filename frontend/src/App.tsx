@@ -75,6 +75,7 @@ export default function App() {
   const [activeView, setActiveView] = useState<ViewId>("market");
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
+  const [sessionChecking, setSessionChecking] = useState(true);
 
   const notify = useCallback((type: Toast["type"], message: string) => {
     setToast({ type, message });
@@ -103,6 +104,42 @@ export default function App() {
     setUser(nextUser);
     void refresh(nextUser.id);
   };
+
+  const handleLogout = async () => {
+    setLoading(true);
+    try {
+      await marketplaceApi.logout();
+      setUser(null);
+      setSnapshot(null);
+    } catch (error) {
+      notify("error", error instanceof Error ? error.message : "Logout failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const initSession = async () => {
+      try {
+        const activeUser = await marketplaceApi.session();
+        handleAuthenticated(activeUser);
+      } catch (error) {
+        console.log("No persistent session found.");
+      } finally {
+        setSessionChecking(false);
+      }
+    };
+    void initSession();
+  }, []);
+
+  if (sessionChecking) {
+    return (
+      <div className="loading-panel" style={{ height: "100vh" }}>
+        <Database className="spin-slow" size={26} />
+        Loading your session...
+      </div>
+    );
+  }
 
   if (!user) {
     return <AuthPage notify={notify} onAuthenticated={handleAuthenticated} />;
@@ -139,7 +176,7 @@ export default function App() {
           <NavButton icon={<Store />} label="Store Portal" active={activeView === "store"} onClick={() => setActiveView("store")} />
         </nav>
 
-        <button className="ghost-button logout-button" onClick={() => setUser(null)}>
+        <button className="ghost-button logout-button" onClick={handleLogout} disabled={loading}>
           <LogOut size={18} />
           Log out
         </button>

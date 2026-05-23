@@ -25,6 +25,8 @@ export interface MarketplaceApi {
   login(credentials: Credentials): Promise<User>;
   register(payload: RegisterPayload): Promise<AuthChallenge>;
   verifyAuthChallenge(challengeId: string, code: string): Promise<User>;
+  session(): Promise<User>;
+  logout(): Promise<void>;
   getSnapshot(userId: string): Promise<MarketplaceSnapshot>;
   searchListings(userId: string, query: string, category: string): Promise<Listing[]>;
   createProduct(userId: string, product: Omit<Product, "id" | "ownerId" | "listedAt" | "soldCount">): Promise<Product>;
@@ -137,6 +139,7 @@ class MockMarketplaceApi implements MarketplaceApi {
       throw new Error("Invalid email or password.");
     }
 
+    localStorage.setItem("mock_session", user.id);
     return delay(clone(user));
   }
 
@@ -173,7 +176,26 @@ class MockMarketplaceApi implements MarketplaceApi {
     }
 
     this.authChallenges.delete(challengeId);
+    localStorage.setItem("mock_session", user.id);
     return delay(clone(user));
+  }
+
+  async session() {
+    const userId = localStorage.getItem("mock_session");
+    if (!userId) {
+      throw new Error("No active session.");
+    }
+    const user = this.users.find((u) => u.id === userId);
+    if (!user) {
+      localStorage.removeItem("mock_session");
+      throw new Error("Session user not found.");
+    }
+    return delay(clone(user));
+  }
+
+  async logout() {
+    localStorage.removeItem("mock_session");
+    return delay(undefined);
   }
 
   async getSnapshot(userId: string) {
@@ -409,6 +431,14 @@ class RestMarketplaceApi implements MarketplaceApi {
     return this.request<User>("/auth/verify-2fa", { method: "POST", body: { challengeId, code } });
   }
 
+  async session() {
+    return this.request<User>("/auth/session");
+  }
+
+  async logout() {
+    return this.request<void>("/auth/logout", { method: "POST" });
+  }
+
   async getSnapshot(userId: string) {
     return this.request<MarketplaceSnapshot>(`/users/${userId}/snapshot`);
   }
@@ -459,7 +489,8 @@ class RestMarketplaceApi implements MarketplaceApi {
       const response = await fetch(`${baseUrl}${path}`, {
         method: options.method ?? "GET",
         headers: options.body ? { "Content-Type": "application/json" } : undefined,
-        body: options.body ? JSON.stringify(options.body) : undefined
+        body: options.body ? JSON.stringify(options.body) : undefined,
+        credentials: "include"
       });
 
       if (!response.ok) {
@@ -485,6 +516,8 @@ class RestMarketplaceApi implements MarketplaceApi {
     if (path === "/auth/verify-2fa") {
       return this.fallback.verifyAuthChallenge(String(body.challengeId), String(body.code)) as Promise<T>;
     }
+    if (path === "/auth/session") return this.fallback.session() as Promise<T>;
+    if (path === "/auth/logout" && options.method === "POST") return this.fallback.logout() as Promise<T>;
     if (path.includes("/snapshot")) {
       const userId = path.split("/")[2];
       return this.fallback.getSnapshot(userId) as Promise<T>;

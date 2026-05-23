@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db-coordinator:
     image: mariadb:11

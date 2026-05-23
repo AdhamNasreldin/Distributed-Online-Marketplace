@@ -66,6 +66,7 @@ public class SocketHandler implements Runnable {
         response.put("success", false);
 
         boolean inTransaction = sessionId != null && transactionConnections.containsKey(sessionId);
+        String cleanedSql = "";
 
         try {
             if ("BEGIN".equalsIgnoreCase(type)) {
@@ -133,7 +134,7 @@ public class SocketHandler implements Runnable {
 
             // Route to correct MariaDB container pool
             String dbKey = determineDatabaseKey(sql);
-            String cleanedSql = cleanSql(sql);
+            cleanedSql = cleanSql(sql);
 
             Connection conn = null;
             if (inTransaction) {
