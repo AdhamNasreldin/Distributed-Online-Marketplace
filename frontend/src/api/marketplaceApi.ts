@@ -219,12 +219,11 @@ class MockMarketplaceApi implements MarketplaceApi {
   async searchListings(userId: string, query: string, category: string) {
     const normalizedQuery = query.trim().toLowerCase();
     const listings = listWithSellers(this.products, this.users).filter((listing) => {
-      const matchesOwner = listing.ownerId !== userId;
       const matchesCategory = category === "All" || listing.category === category;
       const searchable = `${listing.name} ${listing.brand} ${listing.category}`.toLowerCase();
       const matchesQuery = normalizedQuery.length === 0 || searchable.includes(normalizedQuery);
 
-      return matchesOwner && matchesCategory && matchesQuery;
+      return matchesCategory && matchesQuery;
     });
 
     return delay(clone(listings), 120);
@@ -277,6 +276,11 @@ class MockMarketplaceApi implements MarketplaceApi {
     }
 
     const user = this.getUser(userId);
+    if (user.balance + amount > 1000000) {
+      const maxAllowed = Math.max(0, 1000000 - user.balance);
+      throw new Error(`Wallet balance cannot exceed 1,000,000. Maximum you can deposit is ${maxAllowed}.`);
+    }
+
     user.balance += amount;
     this.transactions.unshift({
       id: makeId("tx"),

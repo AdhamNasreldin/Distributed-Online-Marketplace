@@ -302,11 +302,10 @@ public class MarketplaceService {
         List<Listing> listings = activeListings();
 
         return listings.stream().filter(listing -> {
-            boolean matchesOwner = !listing.getOwnerId().equals(userId);
             boolean matchesCategory = "All".equals(category) || category == null || category.isEmpty() || listing.getCategory().equals(category);
             String searchable = (listing.getName() + " " + listing.getBrand() + " " + listing.getCategory()).toLowerCase();
             boolean matchesQuery = normalizedQuery.isEmpty() || searchable.contains(normalizedQuery);
-            return matchesOwner && matchesCategory && matchesQuery;
+            return matchesCategory && matchesQuery;
         }).collect(Collectors.toList());
     }
 
@@ -405,6 +404,11 @@ public class MarketplaceService {
 
         // Lock user first
         StoredUser user = lockUserById(userId);
+
+        if (user.getBalance() + amount > 1000000.0) {
+            double maxAllowed = Math.max(0.0, 1000000.0 - user.getBalance());
+            throw new AppException(400, String.format("Wallet balance cannot exceed 1,000,000. Maximum you can deposit is %.2f.", maxAllowed));
+        }
 
         String updateSql = String.format("UPDATE %s.users SET balance = balance + ? WHERE id = ?", user.getSchema());
         jdbcTemplate.update(updateSql, amount, userId);
