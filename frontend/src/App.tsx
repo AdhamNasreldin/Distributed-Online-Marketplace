@@ -820,11 +820,11 @@ function SellItemScreen({ user, notify, refresh }: ScreenProps) {
     event.preventDefault();
     setLoading(true);
     try {
-      if (form.name.trim().length > 200) {
-        throw new Error("Product title cannot exceed 200 characters.");
+      if (form.name.trim().length > 50) {
+        throw new Error("Product title cannot exceed 50 characters.");
       }
-      if (form.description.trim().length > 20000) {
-        throw new Error("Product description cannot exceed 20000 characters.");
+      if (form.description.trim().length > 1000) {
+        throw new Error("Product description cannot exceed 1000 characters.");
       }
 
       const price = Number(form.price);
@@ -862,7 +862,7 @@ function SellItemScreen({ user, notify, refresh }: ScreenProps) {
           <input
             value={form.name}
             onChange={(event) => setForm({ ...form, name: event.target.value })}
-            maxLength={200}
+            maxLength={50}
             required
           />
         </label>
@@ -938,7 +938,7 @@ function SellItemScreen({ user, notify, refresh }: ScreenProps) {
             onChange={(event) =>
               setForm({ ...form, description: event.target.value })
             }
-            maxLength={20000}
+            maxLength={1000}
             rows={5}
             required
           />

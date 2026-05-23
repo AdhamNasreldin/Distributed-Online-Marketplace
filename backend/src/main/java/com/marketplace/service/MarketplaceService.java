@@ -197,15 +197,15 @@ public class MarketplaceService {
         List<String> errors = new ArrayList<>();
         if (row.getName() == null || row.getName().trim().isEmpty()) {
             errors.add("Name is required");
-        } else if (row.getName().trim().length() > 200) {
-            errors.add("Name cannot exceed 200 characters");
+        } else if (row.getName().trim().length() > 50) {
+            errors.add("Name cannot exceed 50 characters");
         }
         if (row.getBrand() == null || row.getBrand().trim().isEmpty()) errors.add("Brand is required");
         if (row.getCategory() == null || row.getCategory().trim().isEmpty()) errors.add("Category is required");
         if (row.getPrice() <= 0) errors.add("Price must be positive");
         if (row.getQuantity() < 0) errors.add("Quantity must be a whole number");
-        if (row.getDescription() != null && row.getDescription().trim().length() > 20000) {
-            errors.add("Description cannot exceed 20000 characters");
+        if (row.getDescription() != null && row.getDescription().trim().length() > 1000) {
+            errors.add("Description cannot exceed 1000 characters");
         }
         return errors;
     }
@@ -330,12 +330,12 @@ public class MarketplaceService {
             throw new AppException(400, "Name, brand, category, positive price, and valid quantity are required.");
         }
 
-        if (product.getName().trim().length() > 200) {
-            throw new AppException(400, "Product title cannot exceed 200 characters.");
+        if (product.getName().trim().length() > 50) {
+            throw new AppException(400, "Product title cannot exceed 50 characters.");
         }
 
-        if (product.getDescription() != null && product.getDescription().trim().length() > 20000) {
-            throw new AppException(400, "Product description cannot exceed 20000 characters.");
+        if (product.getDescription() != null && product.getDescription().trim().length() > 1000) {
+            throw new AppException(400, "Product description cannot exceed 1000 characters.");
         }
 
         String productId = Ids.makeId("p");
@@ -368,12 +368,12 @@ public class MarketplaceService {
             throw new AppException(404, "Product was not found in your inventory.");
         }
 
-        if (updates.getName() != null && updates.getName().trim().length() > 200) {
-            throw new AppException(400, "Product title cannot exceed 200 characters.");
+        if (updates.getName() != null && updates.getName().trim().length() > 50) {
+            throw new AppException(400, "Product title cannot exceed 50 characters.");
         }
 
-        if (updates.getDescription() != null && updates.getDescription().trim().length() > 20000) {
-            throw new AppException(400, "Product description cannot exceed 20000 characters.");
+        if (updates.getDescription() != null && updates.getDescription().trim().length() > 1000) {
+            throw new AppException(400, "Product description cannot exceed 1000 characters.");
         }
 
         List<String> fields = new ArrayList<>();

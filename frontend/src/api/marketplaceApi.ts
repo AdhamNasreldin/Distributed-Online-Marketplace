@@ -230,11 +230,11 @@ class MockMarketplaceApi implements MarketplaceApi {
   }
 
   async createProduct(userId: string, product: Omit<Product, "id" | "ownerId" | "listedAt" | "soldCount">) {
-    if (product.name && product.name.trim().length > 200) {
-      throw new Error("Product title cannot exceed 200 characters.");
+    if (product.name && product.name.trim().length > 50) {
+      throw new Error("Product title cannot exceed 50 characters.");
     }
-    if (product.description && product.description.trim().length > 20000) {
-      throw new Error("Product description cannot exceed 20000 characters.");
+    if (product.description && product.description.trim().length > 1000) {
+      throw new Error("Product description cannot exceed 1000 characters.");
     }
 
     const created: Product = {
@@ -250,11 +250,11 @@ class MockMarketplaceApi implements MarketplaceApi {
   }
 
   async updateProduct(userId: string, productId: string, updates: Partial<Product>) {
-    if (updates.name && updates.name.trim().length > 200) {
-      throw new Error("Product title cannot exceed 200 characters.");
+    if (updates.name && updates.name.trim().length > 50) {
+      throw new Error("Product title cannot exceed 50 characters.");
     }
-    if (updates.description && updates.description.trim().length > 20000) {
-      throw new Error("Product description cannot exceed 20000 characters.");
+    if (updates.description && updates.description.trim().length > 1000) {
+      throw new Error("Product description cannot exceed 1000 characters.");
     }
 
     const index = this.products.findIndex((product) => product.id === productId && product.ownerId === userId);

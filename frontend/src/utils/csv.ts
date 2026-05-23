@@ -51,15 +51,15 @@ export function parseProductCsv(raw: string): CsvImportRow[] {
     missingColumns.forEach((column) => errors.push(`Missing column: ${column}`));
     if (!record.name) {
       errors.push("Name is required");
-    } else if (record.name.length > 200) {
-      errors.push("Name cannot exceed 200 characters");
+    } else if (record.name.length > 50) {
+      errors.push("Name cannot exceed 50 characters");
     }
     if (!record.brand) errors.push("Brand is required");
     if (!record.category) errors.push("Category is required");
     if (!Number.isFinite(price) || price <= 0) errors.push("Price must be a positive number");
     if (!Number.isInteger(quantity) || quantity < 0) errors.push("Quantity must be a whole number");
-    if (record.description && record.description.length > 20000) {
-      errors.push("Description cannot exceed 20000 characters");
+    if (record.description && record.description.length > 1000) {
+      errors.push("Description cannot exceed 1000 characters");
     }
 
     return {
