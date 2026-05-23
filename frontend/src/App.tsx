@@ -7,7 +7,6 @@ import {
   ChevronRight,
   CircleDollarSign,
   ClipboardList,
-  CreditCard,
   Database,
   FileSpreadsheet,
   Headphones,
@@ -370,25 +369,6 @@ function AuthPage({ onAuthenticated, notify }: { onAuthenticated: (user: User) =
             </button>
           </form>
         )}
-      </section>
-
-      <section className="auth-aside">
-        <div className="flow-node active">
-          <UserRound />
-          Account creation and login
-        </div>
-        <div className="flow-node">
-          <ShoppingBag />
-          Search, sell, and purchase items
-        </div>
-        <div className="flow-node">
-          <CreditCard />
-          Wallet deposits and money transfer
-        </div>
-        <div className="flow-node">
-          <BarChart3 />
-          Inventory and transaction reports
-        </div>
       </section>
     </main>
   );
