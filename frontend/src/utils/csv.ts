@@ -49,11 +49,18 @@ export function parseProductCsv(raw: string): CsvImportRow[] {
     const errors: string[] = [];
 
     missingColumns.forEach((column) => errors.push(`Missing column: ${column}`));
-    if (!record.name) errors.push("Name is required");
+    if (!record.name) {
+      errors.push("Name is required");
+    } else if (record.name.length > 200) {
+      errors.push("Name cannot exceed 200 characters");
+    }
     if (!record.brand) errors.push("Brand is required");
     if (!record.category) errors.push("Category is required");
     if (!Number.isFinite(price) || price <= 0) errors.push("Price must be a positive number");
     if (!Number.isInteger(quantity) || quantity < 0) errors.push("Quantity must be a whole number");
+    if (record.description && record.description.length > 20000) {
+      errors.push("Description cannot exceed 20000 characters");
+    }
 
     return {
       name: record.name ?? "",
