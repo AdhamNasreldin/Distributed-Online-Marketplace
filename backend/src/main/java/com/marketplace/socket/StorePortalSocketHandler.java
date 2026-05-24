@@ -1,6 +1,7 @@
 package com.marketplace.socket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.marketplace.config.EnvConfig;
 import com.marketplace.exception.AppException;
 import com.marketplace.model.Listing;
 import com.marketplace.model.Purchase;
@@ -69,9 +70,14 @@ public class StorePortalSocketHandler implements Runnable {
                         
                         PurchaseChallenge challenge = marketplaceService.beginPurchase(beginUserId, beginProductId);
                         response.put("challengeId", challenge.getChallengeId());
-                        response.put("productId", challenge.getProductId());
-                        response.put("code", challenge.getCode()); // include for testing or user-friendliness
-                        response.put("expiresAt", challenge.getExpiresAt());
+                        if (challenge.getProduct() != null) {
+                            response.put("productId", challenge.getProduct().getId());
+                        } else {
+                            response.put("productId", beginProductId);
+                        }
+                        response.put("amount", challenge.getAmount());
+                        response.put("message", challenge.getMessage());
+                        response.put("code", EnvConfig.get("DEMO_2FA_CODE", "246810")); // include for testing or user-friendliness
                         break;
 
                     case "CONFIRM_PURCHASE":
