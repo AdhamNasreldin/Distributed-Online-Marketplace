@@ -9,6 +9,7 @@ import {
   ClipboardList,
   Database,
   FileSpreadsheet,
+  Globe,
   Headphones,
   KeyRound,
   Laptop,
@@ -22,6 +23,7 @@ import {
   ShieldCheck,
   ShoppingBag,
   Store,
+  Terminal,
   Trash2,
   Upload,
   UserRound,
@@ -1395,48 +1397,166 @@ function StorePortalScreen({
   notify: Notify;
 }) {
   const [token, setToken] = useState("store_live_cairo_8841");
+  const [activeTab, setActiveTab] = useState<"rest" | "socket">("rest");
   const partnerListings = useMemo(() => listings.slice(0, 4), [listings]);
 
   return (
     <section className="screen-stack">
-      <div className="store-portal">
-        <div>
-          <p className="eyebrow">External store interface</p>
-          <h2>Partner catalog channel</h2>
-          <div className="token-box">
-            <span>Access token</span>
-            <strong>{token}</strong>
+      <div className="store-portal" style={{ display: "grid", gap: "24px" }}>
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "16px",
+          background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+          padding: "24px",
+          borderRadius: "16px",
+          border: "1px solid #e2e8f0"
+        }}>
+          <div style={{ flex: 1, minWidth: "280px" }}>
+            <p className="eyebrow" style={{ color: "#0f766e", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 6px 0" }}>External store interface</p>
+            <h2 style={{ fontSize: "22px", fontWeight: 800, color: "#0f172a", margin: "0 0 16px 0" }}>Partner Catalog Channel</h2>
+            <div className="token-box" style={{ margin: "0 0 16px 0", maxWidth: "100%", background: "#ffffff" }}>
+              <span style={{ fontSize: "11px", textTransform: "uppercase", color: "#64748b", fontWeight: 600 }}>Access token</span>
+              <strong style={{ fontSize: "15px", color: "#0f766e" }}>{token}</strong>
+            </div>
+            <div className="button-row" style={{ display: "flex", gap: "12px" }}>
+              <button
+                className="primary-button"
+                onClick={() =>
+                  setToken(
+                    `store_live_${Math.random().toString(16).slice(2, 10)}`,
+                  )
+                }
+              >
+                <KeyRound size={18} />
+                Generate token
+              </button>
+              <button
+                className="ghost-button"
+                onClick={() => notify("success", "Partner catalog synchronized.")}
+              >
+                <Database size={18} />
+                Sync catalog
+              </button>
+            </div>
           </div>
-          <div className="button-row">
-            <button
-              className="primary-button"
-              onClick={() =>
-                setToken(
-                  `store_live_${Math.random().toString(16).slice(2, 10)}`,
-                )
-              }
-            >
-              <KeyRound size={18} />
-              Generate token
-            </button>
-            <button
-              className="ghost-button"
-              onClick={() => notify("success", "Partner catalog synchronized.")}
-            >
-              <Database size={18} />
-              Sync catalog
-            </button>
+
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
+            background: "#ffffff",
+            padding: "18px",
+            borderRadius: "12px",
+            border: "1px solid #e2e8f0",
+            minWidth: "240px"
+          }}>
+            <h4 style={{ margin: 0, fontSize: "13px", fontWeight: 700, color: "#475569" }}>Integration Settings</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", color: "#64748b" }}>
+              <div>HTTP Port: <strong style={{ color: "#0f172a" }}>4000</strong></div>
+              <div>TCP Socket Port: <strong style={{ color: "#0f172a" }}>4001</strong></div>
+              <div>Protocol: <strong style={{ color: "#0f172a" }}>JSON over TCP</strong></div>
+            </div>
           </div>
         </div>
 
-        <div className="endpoint-list">
-          <Endpoint method="GET" path="/products/search" />
-          <Endpoint method="POST" path="/orders/begin-purchase" />
-          <Endpoint method="POST" path="/orders/confirm-purchase" />
+        <div>
+          <div style={{
+            display: "flex",
+            borderBottom: "2px solid #e2e8f0",
+            marginBottom: "20px",
+            gap: "8px"
+          }}>
+            <button
+              onClick={() => setActiveTab("rest")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "12px 20px",
+                border: "none",
+                background: "none",
+                cursor: "pointer",
+                borderBottom: activeTab === "rest" ? "3px solid #0f766e" : "3px solid transparent",
+                color: activeTab === "rest" ? "#0f766e" : "#64748b",
+                fontWeight: 700,
+                fontSize: "14px",
+                transition: "all 0.2s"
+              }}
+            >
+              <Globe size={18} />
+              REST HTTP API
+            </button>
+            <button
+              onClick={() => setActiveTab("socket")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "12px 20px",
+                border: "none",
+                background: "none",
+                cursor: "pointer",
+                borderBottom: activeTab === "socket" ? "3px solid #0f766e" : "3px solid transparent",
+                color: activeTab === "socket" ? "#0f766e" : "#64748b",
+                fontWeight: 700,
+                fontSize: "14px",
+                transition: "all 0.2s"
+              }}
+            >
+              <Terminal size={18} />
+              TCP Socket API (Dual Protocol)
+            </button>
+          </div>
+
+          <div className="endpoint-list" style={{ display: "grid", gap: "14px" }}>
+            {activeTab === "rest" ? (
+              <>
+                <Endpoint
+                  method="GET"
+                  path="/products/search"
+                  description="Allows partners to search and retrieve listings filtered by query and category."
+                />
+                <Endpoint
+                  method="POST"
+                  path="/orders/begin-purchase"
+                  description="Initiates the purchase flow for a product. Generates and returns a 2FA verification challenge."
+                />
+                <Endpoint
+                  method="POST"
+                  path="/orders/confirm-purchase"
+                  description="Confirms and completes the purchase using the user ID, challenge ID, and the 2FA code."
+                />
+              </>
+            ) : (
+              <>
+                <Endpoint
+                  method="TCP"
+                  path="SEARCH"
+                  description="Retrieve listings filtered by query, user identity, and product category."
+                  payload={JSON.stringify({ action: "SEARCH", userId: "u-300", query: "Ergo", category: "All" }, null, 2)}
+                />
+                <Endpoint
+                  method="TCP"
+                  path="BEGIN_PURCHASE"
+                  description="Initialize a secure order purchase. Instantly generates a 2FA verification code."
+                  payload={JSON.stringify({ action: "BEGIN_PURCHASE", userId: "u-300", productId: "p-1001" }, null, 2)}
+                />
+                <Endpoint
+                  method="TCP"
+                  path="CONFIRM_PURCHASE"
+                  description="Finalize transaction processing using the validation challenge token and code."
+                  payload={JSON.stringify({ action: "CONFIRM_PURCHASE", userId: "u-300", challengeId: "ch-12345", code: "246810" }, null, 2)}
+                />
+              </>
+            )}
+          </div>
         </div>
       </div>
 
-      <section className="work-panel">
+      <section className="work-panel" style={{ marginTop: "24px" }}>
         <TableHeader
           icon={<Store />}
           title="Partner storefront preview"
@@ -1647,11 +1767,77 @@ function ReportCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Endpoint({ method, path }: { method: string; path: string }) {
+function Endpoint({
+  method,
+  path,
+  description,
+  payload,
+}: {
+  method: string;
+  path: string;
+  description?: string;
+  payload?: string;
+}) {
+  const badgeStyle = {
+    GET: { background: "#e6f4ea", color: "#137333" },
+    POST: { background: "#e8f0fe", color: "#1a73e8" },
+    TCP: { background: "#f3e8fd", color: "#9333ea" },
+  }[method] || { background: "#f1f3f4", color: "#3c4043" };
+
   return (
-    <div className="endpoint">
-      <span>{method}</span>
-      <code>{path}</code>
+    <div style={{
+      border: "1px solid #dadce0",
+      borderRadius: "12px",
+      background: "#ffffff",
+      padding: "16px",
+      display: "flex",
+      flexDirection: "column",
+      gap: "10px",
+      transition: "box-shadow 0.2s, border-color 0.2s",
+      boxShadow: "0 1px 2px 0 rgba(60,64,67,0.1)",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        <span style={{
+          borderRadius: "6px",
+          background: badgeStyle.background,
+          color: badgeStyle.color,
+          fontSize: "11px",
+          fontWeight: 800,
+          padding: "4px 10px",
+          minWidth: "60px",
+          textAlign: "center",
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+        }}>{method}</span>
+        <code style={{
+          fontFamily: "ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace",
+          fontSize: "14px",
+          fontWeight: 700,
+          color: "#202124",
+          background: "#f8f9fa",
+          padding: "4px 8px",
+          borderRadius: "4px",
+          border: "1px solid #f1f3f4",
+        }}>{path}</code>
+      </div>
+      {description && <div style={{ fontSize: "13px", color: "#5f6368", lineHeight: "1.5" }}>{description}</div>}
+      {payload && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "4px" }}>
+          <span style={{ fontSize: "11px", fontWeight: 700, color: "#80868b", textTransform: "uppercase" }}>JSON Request Payload Schema</span>
+          <pre style={{
+            margin: 0,
+            padding: "12px",
+            background: "#202124",
+            borderRadius: "8px",
+            fontSize: "12px",
+            fontFamily: "ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace",
+            color: "#f8f9fa",
+            overflowX: "auto",
+            lineHeight: "1.6",
+            border: "1px solid #3c4043",
+          }}>{payload}</pre>
+        </div>
+      )}
     </div>
   );
 }
